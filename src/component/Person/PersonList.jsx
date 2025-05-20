@@ -1,5 +1,7 @@
+import { useOutletContext } from "react-router-dom";
 import PersonCard from "./PersonCard";
-const PersonList = ({ persons }) => {
+const PersonList = () => {
+  const { persons } = useOutletContext();
   return (
     <div className="p-8">
       <h1 className="p-8 text-3xl text-center">Personal Details</h1>

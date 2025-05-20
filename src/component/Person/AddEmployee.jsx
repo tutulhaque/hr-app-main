@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 
@@ -35,9 +36,12 @@ const AddEmployee = () => {
       salary: parseFloat(formData.salary),
       skills: formData.skills.split(",").map((skill) => skill.trim()),
     };
-
-    handleAddEmployee(newEmployee);
-    navigate("/employees");
+    axios.post("http://localhost:3000/employees", newEmployee).then((res) => {
+      setFormData(res.data);
+      handleAddEmployee(newEmployee);
+      navigate("/employees");
+      setFormData({ title: "", salary: "", phone: "", email: "" });
+    });
   };
 
   return (
