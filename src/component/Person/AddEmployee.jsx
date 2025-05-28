@@ -1,8 +1,9 @@
-import axios from "axios";
+import useAxios from "../../hooks/useAxios";
 import { useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 
 const AddEmployee = () => {
+  const { post } = useAxios();
   const navigate = useNavigate();
   const { handleAddEmployee } = useOutletContext();
 
@@ -20,6 +21,7 @@ const AddEmployee = () => {
   });
 
   const handleChange = (e) => {
+    e.preventDefault();
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -36,9 +38,8 @@ const AddEmployee = () => {
       salary: parseFloat(formData.salary),
       skills: formData.skills.split(",").map((skill) => skill.trim()),
     };
-    axios.post("http://localhost:3000/employees", newEmployee).then((res) => {
-      setFormData(res.data);
-      handleAddEmployee(newEmployee);
+    post("/employees", newEmployee).then((res) => {
+      handleAddEmployee(res.data); // use actual returned data
       navigate("/employees");
       setFormData({ title: "", salary: "", phone: "", email: "" });
     });

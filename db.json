@@ -1,27 +1,27 @@
 {
   "employees": [
     {
-      "id": 1,
+      "id": "1",
       "name": "Aino Virtanen",
       "title": "HR Manager",
-      "salary": 4200,
+      "salary": 4205,
       "phone": "040-1234567",
       "email": "aino.virtanen@example.com",
       "animal": "Owl 🦉",
       "startDate": "2010-05-11",
-      "location": "Helsinki",
+      "location": "Helsinkiiii",
       "department": "Human Resources",
       "skills": [
-        "Recruiting",
+        "Recruitings",
         "Communication",
         "Employee Relations"
       ]
     },
     {
-      "id": 2,
+      "id": "2",
       "name": "Mikko Niemi",
       "title": "Software Developer",
-      "salary": 5200,
+      "salary": 5201,
       "phone": "041-2233445",
       "email": "mikko.niemi@example.com",
       "animal": "Cat 🐱",
@@ -35,10 +35,10 @@
       ]
     },
     {
-      "id": 3,
+      "id": "3",
       "name": "Sanna Lehto",
       "title": "Marketing Specialist",
-      "salary": 3900,
+      "salary": 3901,
       "phone": "045-9876543",
       "email": "sanna.lehto@example.com",
       "animal": "Fox 🦊",
@@ -52,10 +52,10 @@
       ]
     },
     {
-      "id": 4,
+      "id": "4",
       "name": "Jussi Korhonen",
       "title": "Product Manager",
-      "salary": 6000,
+      "salary": 6001,
       "phone": "040-7654321",
       "email": "jussi.korhonen@example.com",
       "animal": "Wolf 🐺",
@@ -69,10 +69,10 @@
       ]
     },
     {
-      "id": 5,
+      "id": "5",
       "name": "Laura Mäkinen",
       "title": "UX Designer",
-      "salary": 4700,
+      "salary": 471,
       "phone": "050-3344556",
       "email": "laura.makinen@example.com",
       "animal": "Deer 🦌",
@@ -86,10 +86,10 @@
       ]
     },
     {
-      "id": 6,
+      "id": "6",
       "name": "Antti Saarinen",
       "title": "Data Analyst",
-      "salary": 5000,
+      "salary": 5001,
       "phone": "046-2233445",
       "email": "antti.saarinen@example.com",
       "animal": "Hawk 🦅",
@@ -103,7 +103,7 @@
       ]
     },
     {
-      "id": 7,
+      "id": "7",
       "name": "Elina Jokinen",
       "title": "Customer Support Lead",
       "salary": 3600,
@@ -120,7 +120,7 @@
       ]
     },
     {
-      "id": 8,
+      "id": "8",
       "name": "Olli Laine",
       "title": "QA Engineer",
       "salary": 4500,
@@ -137,7 +137,7 @@
       ]
     },
     {
-      "id": 9,
+      "id": "9",
       "name": "Kaisa Rantala",
       "title": "Finance Controller",
       "salary": 5500,
@@ -154,7 +154,7 @@
       ]
     },
     {
-      "id": 10,
+      "id": "10",
       "name": "Ville Heikkilä",
       "title": "IT Support Specialist",
       "salary": 3800,
@@ -171,7 +171,7 @@
       ]
     },
     {
-      "id": 11,
+      "id": "11",
       "name": "Emma Salmi",
       "title": "Business Analyst",
       "salary": 5100,
@@ -188,7 +188,7 @@
       ]
     },
     {
-      "id": 1747741864947,
+      "id": "1747741864947",
       "name": "New Employee",
       "title": "Nothing to write",
       "salary": 12345,
@@ -196,6 +196,22 @@
       "email": "totulhaque323@gmail.com",
       "animal": "Turtle 🐢",
       "startDate": "2025-05-22",
+      "location": "nai",
+      "department": "naiiiii",
+      "skills": [
+        "na",
+        "ha"
+      ]
+    },
+    {
+      "id": 1748349191513,
+      "name": "Tutul",
+      "title": "Bok Bok",
+      "salary": 1341,
+      "phone": "1231234123",
+      "email": "sdtutulctg@gmail.com",
+      "animal": "Tiger",
+      "startDate": "2025-05-28",
       "location": "nai",
       "department": "naiiiii",
       "skills": [

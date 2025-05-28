@@ -1,39 +1,66 @@
 // Root.jsx
-import { useEffect, useState } from "react";
-import Header from "./Header";
-import Footer from "./Footer";
-import Banner from "./Banner";
+import React, { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
-import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import useAxios from "./hooks/useAxios"; // Adjust path as necessary
+import Header from "../../../../hr-app-copy/hr-app/step-3/hr-app-main/src/Header";
+import Banner from "../../../../hr-app-copy/hr-app/step-3/hr-app-main/src/Banner";
+import Footer from "../../../../hr-app-copy/hr-app/step-3/hr-app-main/src/Footer";
 
 const Root = () => {
+  const { get } = useAxios();
   const [persons, setPersons] = useState([]);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  // useEffect(() => {
-  //   fetch("http://localhost:3000/employees")
-  //     .then((res) => res.json())
-  //     .then((data) => setPersons(data))
-  //     .catch((err) => console.error("Error fetching employees:", err));
-  // }, []);
+  const fetchPersons = async () => {
+    try {
+      const response = await get("/employees");
+      setPersons(response.data);
+    } catch (error) {
+      console.error("Failed to fetch employees", error);
+      toast.error("❌ Failed to fetch employee data");
+    }
+  };
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3000/employees")
-      .then((res) => setPersons(res.data));
+    fetchPersons();
   }, []);
 
-  const handleAddEmployee = (newEmp) => {
-    setPersons((prev) => [...prev, newEmp]);
+  const handleUpdatePerson = (updatedPerson) => {
+    setPersons((prev) =>
+      prev.map((p) => (p.id === updatedPerson.id ? updatedPerson : p))
+    );
+    toast.success("✅ Changes saved!", {
+      position: "top-right",
+      autoClose: 3000,
+      pauseOnHover: true,
+    });
   };
+
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (!hasUnsavedChanges) return;
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [hasUnsavedChanges]);
 
   return (
     <>
       <Header />
       <Banner />
-      <main className="min-h-96">
-        <Outlet context={{ persons, handleAddEmployee }} />
-      </main>
+      <Outlet
+        context={{
+          persons,
+          setPersons,
+          setHasUnsavedChanges,
+          handleUpdatePerson,
+        }}
+      />
       <Footer />
+      <ToastContainer />
     </>
   );
 };

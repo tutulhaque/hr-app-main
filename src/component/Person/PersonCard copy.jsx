@@ -1,55 +1,51 @@
-import React, { useState, useEffect } from "react";
-import { useOutletContext } from "react-router-dom";
+import React, { useState } from "react";
+import useAxios from "../../hooks/useAxios";
 import { Pencil, Plus, X, Save } from "lucide-react";
 
-const PersonCard = ({ person }) => {
-  const { handleUpdatePerson, setHasUnsavedChanges } = useOutletContext();
+const PersonCard = ({ person, onUpdate }) => {
+  const { patch } = useAxios();
+  const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [salary, setSalary] = useState(person.salary);
   const [location, setLocation] = useState(person.location);
   const [department, setDepartment] = useState(person.department);
   const [skills, setSkills] = useState(person.skills.join(", "));
   const [saved, setSaved] = useState(false);
-  const [showModal, setShowModal] = useState(false);
 
-  useEffect(() => {
-    setHasUnsavedChanges(isEditing);
-  }, [isEditing, setHasUnsavedChanges]);
-
-  useEffect(() => {
-    if (!isEditing) {
-      setSalary(person.salary);
-      setLocation(person.location);
-      setDepartment(person.department);
-      setSkills(person.skills.join(", "));
-    }
-  }, [person, isEditing]);
-
-  const handleSave = () => {
+  const handleSave = async () => {
     const updates = {};
 
-    if (salary !== person.salary) updates.salary = Number(salary);
-    if (location !== person.location) updates.location = location;
-    if (department !== person.department) updates.department = department;
+    if (salary !== person.salary) {
+      updates.salary = Number(salary);
+    }
+
+    if (location !== person.location) {
+      updates.location = location;
+    }
+
+    if (department !== person.department) {
+      updates.department = department;
+    }
 
     const updatedSkillsArray = skills.split(",").map((s) => s.trim());
     if (JSON.stringify(updatedSkillsArray) !== JSON.stringify(person.skills)) {
       updates.skills = updatedSkillsArray;
     }
 
+    // No changes? Exit edit mode
     if (Object.keys(updates).length === 0) {
       setIsEditing(false);
-      setHasUnsavedChanges(false);
       return;
     }
 
-    // Simulate async update - replace with real API call if needed
-    setTimeout(() => {
-      const updatedPerson = { ...person, ...updates };
-      handleUpdatePerson(updatedPerson);
+    try {
+      const res = await patch(`/employees/${person.id}`, updates);
+      onUpdate(res.data);
       setIsEditing(false);
-      setHasUnsavedChanges(false);
-    }, 500);
+      setSaved(true);
+    } catch (err) {
+      console.error("Update failed", err);
+    }
   };
 
   const handleCancel = () => {
@@ -58,8 +54,8 @@ const PersonCard = ({ person }) => {
     setDepartment(person.department);
     setSkills(person.skills.join(", "));
     setIsEditing(false);
-    setHasUnsavedChanges(false);
   };
+
   // Helper to calculate years and months of experience
   const getExperience = (startDateStr) => {
     const startDate = new Date(startDateStr);
@@ -122,6 +118,7 @@ const PersonCard = ({ person }) => {
           </div>
         </div>
       )}
+
       <div className="card w-96 bg-base-100 shadow-sm border border-gray-200 relative">
         <div className="card-body">
           <h2 className="card-title">Name: {person.name}</h2>
