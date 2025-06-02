@@ -52,18 +52,26 @@
 
 ---
 
+---
+
+## 🔗 Project Links
+
+- 🚀 **Live Demo:** [https://genuine-pixie-0df80d.netlify.app/employees](https://genuine-pixie-0df80d.netlify.app/employees)
+- 💻 **Frontend GitHub Repo:** [https://github.com/tutulhaque/hr-app-main](https://github.com/tutulhaque/hr-app-main)
+- 🛠️ **Backend (JSON Server) Repo:** [https://github.com/tutulhaque/json-server-api](https://github.com/tutulhaque/json-server-api)
+
 ## 🚀 Getting Started
 
 Follow these steps to run the project locally:
 
 ```bash
 # Clone the project
-git clone https://github.com/your-username/hr-app.git
-cd hr-app
+git clone https://github.com/your-username/hr-app-main.git
+cd hr-app-main
 
 # Install dependencies
 npm install
 
 # Start the development server
-npm start
+npm run dev
 ```

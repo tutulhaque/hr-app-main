@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:3001";
+const BASE_URL = "https://json-server-api-production-20d9.up.railway.app";
 
 const useAxios = () => {
   const get = (endpoint) => axios.get(`${BASE_URL}${endpoint}`);
