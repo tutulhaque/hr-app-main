@@ -52,8 +52,6 @@
 
 ---
 
----
-
 ## 🔗 Project Links
 
 - 🚀 **Live Demo:** [https://genuine-pixie-0df80d.netlify.app/employees](https://genuine-pixie-0df80d.netlify.app/employees)
