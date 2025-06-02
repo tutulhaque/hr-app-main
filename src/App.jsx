@@ -1,4 +1,3 @@
-// App.jsx
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Root from "./Root";
 import PersonList from "./component/Person/PersonList";
@@ -9,14 +8,22 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <Root />,
+
     children: [
-      { path: "employees", element: <PersonList /> },
       {
-        path: "/about",
+        index: true,
+        element: <PersonList />,
+      },
+      {
+        path: "employees",
+        element: <PersonList />,
+      },
+      {
+        path: "about",
         element: <About />,
       },
       {
-        path: "/employee/add",
+        path: "employee/add",
         element: <AddEmployee />,
       },
     ],

@@ -1,51 +1,38 @@
-// Root.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Outlet } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import useAxios from "./hooks/useAxios"; // Adjust path as necessary
-import Header from "../../../../hr-app-copy/hr-app/step-3/hr-app-main/src/Header";
-import Banner from "../../../../hr-app-copy/hr-app/step-3/hr-app-main/src/Banner";
-import Footer from "../../../../hr-app-copy/hr-app/step-3/hr-app-main/src/Footer";
+import useAxios from "./hooks/useAxios";
+import Header from "./Header";
+import Banner from "./Banner";
+import Footer from "./Footer";
 
 const Root = () => {
   const { get } = useAxios();
   const [persons, setPersons] = useState([]);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  const fetchPersons = async () => {
-    try {
-      const response = await get("/employees");
-      setPersons(response.data);
-    } catch (error) {
-      console.error("Failed to fetch employees", error);
-      toast.error("❌ Failed to fetch employee data");
-    }
-  };
-
+  // Fetch employees
   useEffect(() => {
-    fetchPersons();
+    const fetchData = async () => {
+      try {
+        const res = await get("/employees");
+        setPersons(res.data);
+      } catch (err) {
+        console.error("Failed to fetch employees", err);
+      }
+    };
+    fetchData();
+  }, [get]);
+
+  // Add Employee
+  const handleAddEmployee = useCallback((newPerson) => {
+    setPersons((prev) => [...prev, newPerson]);
   }, []);
 
-  const handleUpdatePerson = (updatedPerson) => {
+  // Update person
+  const handleUpdatePerson = useCallback((updatedPerson) => {
     setPersons((prev) =>
       prev.map((p) => (p.id === updatedPerson.id ? updatedPerson : p))
     );
-    toast.success("✅ Changes saved!", {
-      position: "top-right",
-      autoClose: 3000,
-      pauseOnHover: true,
-    });
-  };
-
-  useEffect(() => {
-    const handleBeforeUnload = (e) => {
-      if (!hasUnsavedChanges) return;
-      e.preventDefault();
-      e.returnValue = "";
-    };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [hasUnsavedChanges]);
+  }, []);
 
   return (
     <>
@@ -55,12 +42,11 @@ const Root = () => {
         context={{
           persons,
           setPersons,
-          setHasUnsavedChanges,
           handleUpdatePerson,
+          handleAddEmployee,
         }}
       />
       <Footer />
-      <ToastContainer />
     </>
   );
 };

@@ -7,7 +7,10 @@ const PersonList = () => {
 
   return (
     <div className="p-8">
-      <h1 className="text-3xl text-center mb-8">Employee List</h1>
+      <h1 className="text-4xl font-extrabold text-center mb-10 text-[#412ad5] flex items-center justify-center gap-3">
+        🗂️ <span className="underline decoration-[#412ad5]">Employee List</span>
+      </h1>
+
       <div className="flex flex-wrap gap-6 justify-center">
         {persons.map((person) => (
           <PersonCard key={person.id} person={person} />

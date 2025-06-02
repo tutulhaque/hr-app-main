@@ -1,20 +1,27 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import { Pencil, Plus, X, Save } from "lucide-react";
+import EmployeeDetailsModal from "./EmployeeDetailsModal";
+import { animalEmojis } from "../../data/animalEmojis";
+import {
+  getExperience,
+  shouldShowSavedMessage,
+} from "../utils/employeeHelpers";
+
+import useAxios from "../../hooks/useAxios";
 
 const PersonCard = ({ person }) => {
+  const { patch } = useAxios();
   const { handleUpdatePerson, setHasUnsavedChanges } = useOutletContext();
+
   const [isEditing, setIsEditing] = useState(false);
   const [salary, setSalary] = useState(person.salary);
   const [location, setLocation] = useState(person.location);
   const [department, setDepartment] = useState(person.department);
   const [skills, setSkills] = useState(person.skills.join(", "));
+  const [showSavedMessage, setShowSavedMessage] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showModal, setShowModal] = useState(false);
-
-  useEffect(() => {
-    setHasUnsavedChanges(isEditing);
-  }, [isEditing, setHasUnsavedChanges]);
 
   useEffect(() => {
     if (!isEditing) {
@@ -22,13 +29,16 @@ const PersonCard = ({ person }) => {
       setLocation(person.location);
       setDepartment(person.department);
       setSkills(person.skills.join(", "));
+      setSaved(false);
     }
   }, [person, isEditing]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const updates = {};
+    const parsedSalary = parseFloat(salary);
 
-    if (salary !== person.salary) updates.salary = Number(salary);
+    if (!isNaN(parsedSalary) && parsedSalary !== person.salary)
+      updates.salary = parsedSalary;
     if (location !== person.location) updates.location = location;
     if (department !== person.department) updates.department = department;
 
@@ -43,13 +53,17 @@ const PersonCard = ({ person }) => {
       return;
     }
 
-    // Simulate async update - replace with real API call if needed
-    setTimeout(() => {
-      const updatedPerson = { ...person, ...updates };
-      handleUpdatePerson(updatedPerson);
+    try {
+      await patch(`/employees/${person.id}`, updates);
+
+      localStorage.setItem("showSavedMessage", "true");
+
       setIsEditing(false);
-      setHasUnsavedChanges(false);
-    }, 500);
+      setShowSavedMessage(true);
+      setTimeout(() => setShowSavedMessage(false), 3000);
+    } catch (err) {
+      console.error("Update failed", err);
+    }
   };
 
   const handleCancel = () => {
@@ -59,170 +73,160 @@ const PersonCard = ({ person }) => {
     setSkills(person.skills.join(", "));
     setIsEditing(false);
     setHasUnsavedChanges(false);
+    setSaved(false);
   };
-  // Helper to calculate years and months of experience
-  const getExperience = (startDateStr) => {
-    const startDate = new Date(startDateStr);
-    const today = new Date();
 
-    let years = today.getFullYear() - startDate.getFullYear();
-    let months = today.getMonth() - startDate.getMonth();
-
-    if (months < 0) {
-      years--;
-      months += 12;
+  useEffect(() => {
+    const savedFlag = localStorage.getItem("showSavedMessage");
+    if (savedFlag === "true") {
+      setShowSavedMessage(true);
+      localStorage.removeItem("showSavedMessage");
+      setTimeout(() => setShowSavedMessage(false), 3000);
     }
+  }, []);
 
-    return { years, months };
-  };
+  useEffect(() => {
+    shouldShowSavedMessage(setShowSavedMessage);
+  }, []);
 
   const { years, months } = getExperience(person.startDate);
   const totalMonths = years * 12 + months;
 
   const isAnniversary = years > 0 && years % 5 === 0;
-
   const isNewHire = totalMonths < 6;
 
   return (
     <>
       {showModal && (
-        <div className="fixed inset-0 backdrop-blur-sm bg-black/30 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96 relative">
-            <button
-              className="absolute top-2 right-2 text-gray-500 hover:text-black cursor-pointer"
-              onClick={() => setShowModal(false)}
-            >
-              <X size={20} />
-            </button>
-            <h3 className="text-lg font-bold mb-4">Employee Details</h3>
-            <p>
-              <strong>ID:</strong> {person.id}
-            </p>
-            <p>
-              <strong>Name:</strong> {person.name}
-            </p>
-            <p>
-              <strong>Salary:</strong> {person.salary}€
-            </p>
-            <p>
-              <strong>Location:</strong> {person.location}
-            </p>
-            <p>
-              <strong>Department:</strong> {person.department}
-            </p>
-            <p>
-              <strong>Email:</strong> {person.email}
-            </p>
-            <p>
-              <strong>Phone:</strong> {person.phone}
-            </p>
-            <p>
-              <strong>Skills:</strong> {person.skills.join(", ")}
-            </p>
-          </div>
-        </div>
+        <EmployeeDetailsModal
+          person={person}
+          onClose={() => setShowModal(false)}
+        />
       )}
-      <div className="card w-96 bg-base-100 shadow-sm border border-gray-200 relative">
+
+      <div className="relative w-96 card bg-white shadow-md border border-gray-200 overflow-hidden transition hover:shadow-xl">
+        {/* Badge */}
+        {(isAnniversary || isNewHire) && (
+          <div className="absolute top-2 left-2/3 -translate-x-2/3 flex gap-2">
+            {isAnniversary && (
+              <span className="badge badge-success text-white text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 animate-pulse shadow-md whitespace-nowrap">
+                🎉 Anniversary
+              </span>
+            )}
+            {isNewHire && (
+              <span className="badge badge-warning text-white text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 animate-pulse shadow-md whitespace-nowrap">
+                🔔 New Hire
+              </span>
+            )}
+          </div>
+        )}
+
         <div className="card-body">
-          <h2 className="card-title">Name: {person.name}</h2>
-          <p>ID: {person.id}</p>
+          {/* Name */}
+          <h2 className="text-2xl font-extrabold text-[#412AD5] text-left">
+            {person.name}
+          </h2>
+
+          {/* Animal */}
+          <div className="text-5xl text-left">
+            {animalEmojis[person.animal?.trim().toLowerCase()] || "🐾"}
+          </div>
+          {animalEmojis[person.animal?.trim().toLowerCase()] && (
+            <p className="text-left font-semibold text-[17px] capitalize">
+              {"Animal: " + person.animal}
+            </p>
+          )}
 
           {isEditing ? (
             <>
-              <div>
-                <label className="font-semibold">Salary:</label>
-                <input
-                  type="number"
-                  value={salary}
-                  onChange={(e) => setSalary(e.target.value)}
-                  className="input input-bordered w-full"
-                />
-              </div>
-              <div>
-                <label className="font-semibold">Location:</label>
-                <input
-                  type="text"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  className="input input-bordered w-full"
-                />
-              </div>
-              <div>
-                <label className="font-semibold">Department:</label>
-                <input
-                  type="text"
-                  value={department}
-                  onChange={(e) => setDepartment(e.target.value)}
-                  className="input input-bordered w-full"
-                />
-              </div>
-              <div>
-                <label className="font-semibold">Skills:</label>
-                <input
-                  type="text"
-                  value={skills}
-                  onChange={(e) => setSkills(e.target.value)}
-                  className="input input-bordered w-full"
-                />
-              </div>
-              <div className="flex gap-2 mt-4">
+              {[
+                {
+                  label: "Salary",
+                  value: salary,
+                  onChange: setSalary,
+                  type: "number",
+                },
+                { label: "Location", value: location, onChange: setLocation },
+                {
+                  label: "Department",
+                  value: department,
+                  onChange: setDepartment,
+                },
+                { label: "Skills", value: skills, onChange: setSkills },
+              ].map((field, idx) => (
+                <div key={idx}>
+                  <label className="font-semibold">{field.label}:</label>
+                  <input
+                    type={field.type || "text"}
+                    value={field.value}
+                    onChange={(e) => field.onChange(e.target.value)}
+                    className="input input-bordered w-full"
+                  />
+                </div>
+              ))}
+
+              <div className="flex gap-2 mt-4 justify-center">
                 <button
                   type="button"
-                  className="btn btn-success"
+                  className="btn btn-primary"
                   onClick={handleSave}
                 >
                   Save <Save size={20} />
                 </button>
-                {saved && (
-                  <p className="text-green-600 mt-2 font-medium animate-pulse">
-                    ✅ Changes saved!
-                  </p>
-                )}
-
-                <button className="btn btn-outline" onClick={handleCancel}>
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={handleCancel}
+                >
                   Cancel <X size={20} />
                 </button>
               </div>
             </>
           ) : (
             <>
-              <p>Salary: {person.salary}€</p>
-              <p>Location: {person.location}</p>
-              <p>Department: {person.department}</p>
-              <p>Skills: {person.skills.join(", ")}</p>
-              <p>Favorite Animal: {person.animal}</p>
+              <div className="text-left space-y-2 text-gray-800 text-[17px] leading-relaxed">
+                <p>
+                  <span className="font-bold">💶 Salary:</span>{" "}
+                  <span className="font-sm">{person.salary}€</span>
+                </p>
+                <p>
+                  <span className="font-bold ">📍 Location:</span>{" "}
+                  <span className="font-sm">{person.location}</span>
+                </p>
+                <p>
+                  <span className="font-bold">🏢 Department:</span>{" "}
+                  <span className="font-sm">{person.department}</span>
+                </p>
+                <p>
+                  <span className="font-bold">🛠️ Skills:</span>{" "}
+                  <span className="font-sm">{person.skills.join(", ")}</span>
+                </p>
+              </div>
 
-              {isAnniversary && (
-                <p className="text-green-600 font-semibold">
-                  🎉 Schedule recognition meeting.
-                </p>
-              )}
-              {isNewHire && (
-                <p className="text-yellow-600 font-semibold">
-                  🔔 Schedule probation review.
-                </p>
-              )}
               <button
-                className="absolute top-2 right-2 bg-black text-white rounded-full p-2 hover:bg-gray-800 cursor-pointer"
-                onClick={() => setIsEditing(true)}
+                className="absolute top-2 right-2 bg-[#412AD5] text-white rounded-full p-2 hover:bg-[#602AD5] transition cursor-pointer"
+                onClick={() => {
+                  setIsEditing(true);
+                  setSaved(false);
+                }}
                 aria-label="Edit"
               >
                 <Pencil size={16} />
               </button>
 
-              {saved && (
-                <div className="text-green-600 text-sm mt-2">
+              {showSavedMessage && (
+                <div className="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50 animate-fadeIn">
                   ✅ Changes saved!
                 </div>
               )}
             </>
           )}
+
           <button
             onClick={() => setShowModal(true)}
-            className="btn btn-neutral"
+            className="btn btn-primary w-full mt-4"
           >
-            See More
-            <Plus size={20} />
+            See More <Plus size={20} />
           </button>
         </div>
       </div>
